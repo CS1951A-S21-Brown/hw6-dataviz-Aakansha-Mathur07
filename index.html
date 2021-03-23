@@ -15,14 +15,31 @@
     <!--  We included a basic HTML structure for the 3 graphs here. Feel free to change this if you'd like  -->
     <div class="row">
         <div class="col-lg-6">
-            <div id="graph1"></div>
-            <div id="graph2"></div><br/>
+            <div>
+                <select id="select-button"></select>
+                <div id="graph1"> </div>
+            </div>
+
+            <div id="graph2">
+                <button type="button" class="btn btn-info" onclick="setData(0, 'NA_Sales')">North America</button>
+                <button type="button" class="btn btn-info" onclick="setData(0, 'EU_Sales')">Europe</button>
+                <button type="button" class="btn btn-info" onclick="setData(0, 'JP_Sales')">Japan</button>
+                <button type="button" class="btn btn-info" onclick="setData(0, 'Other_Sales')">Other</button>
+                <button type="button" class="btn btn-info" onclick="setData(0, 'Global_Sales')">Global</button>
+            </div><br/>
         </div>
         <div class="col-lg-6">
-            <div id="graph3"></div>
+            <select id="selectButton"></select>
+
+            <div id="graph3">
+                
+            </div>
         </div>
     </div>
     <!--Feel free to add more JavaScript files as needed-->
+    <script type="text/javascript"> const NUM_EXAMPLES = 10; </script>
     <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="graph3.js"></script>
+    <script type="text/javascript" src="graph1.js"></script>
 </body>
 </html>
