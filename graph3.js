@@ -1,83 +1,140 @@
-d3.csv("../data/video_games.csv").then(function(data) {
+var NUM_PUBLISHERS = 5;
+setChart(NUM_PUBLISHERS)
+function setPub() {
+    NUM_PUBLISHERS = document.getElementById("userPub").value;
+    console.log(NUM_PUBLISHERS)
+    setChart(NUM_PUBLISHERS)
+  }
 
-    let genre = []
-    data.forEach(element => {
-        if(!genre.includes(element.Genre))
-        {
-            genre.push(element.Genre)   
-        }
+let svg2 = d3.select("#graph3")
+  .append("svg")
+  .attr("width", graph_3_width+margin.left+margin.right+10)     
+  .attr("height", graph_3_height) 
+  .append("g")
+  .attr("transform", `translate(${graph_3_width/2+margin.left+10}, ${graph_3_height/2})`);
 
-    });
+
+
+var pie = d3.pie()
+let radius = Math.min(graph_3_width, graph_3_height) / 2 - margin.top
+const path = d3.arc().outerRadius(radius*0.8).innerRadius(radius*0.5);
+
+var outerCircle = d3.arc().innerRadius(radius * 0.9).outerRadius(radius * 0.9)
+
+function setChart (NUM_PUBLISHERS)
+{   
     
-    d3.select("#selectButton")
-    .selectAll('genres')
-       .data(genre)
-    .enter()
-      .append('option')
-    .text(function (d) { return d; }) 
-    .attr("genreName", function (d) { return d; })
+    d3.csv("../data/video_games.csv").then(function(data) {
+        let genre = []
+        data.forEach(element => {
+            if(!genre.includes(element.Genre))
+            {
+                genre.push(element.Genre)   
+            }
     
-    setSports(data)
+        });
 
-
-    d3.select("#selectButton")
-    .on("change", function (d) {
-        var selectedGenre = d3.select(this).property("genreName")
-
-        update(selectedGenre)
-    }) 
-
-    function update () {
-        console.log('Hi')
+        d3.select("#selectButton")
+        .selectAll('genres')
+           .data(genre)
+        .enter()
+          .append('option')
+        .text(function (d) { console.log(d); return d; }) 
+        .attr("value", function (d) { return d; })
         
-    }
+        getChart('Sports', data)
+        d3.select("#selectButton")
+        .on("change", function (d) {
+            var selectedGenre = d3.select(this).property("value")
     
-   // function setPie () {
-});
+            getChart(selectedGenre, data)
+        }) 
+        
+    });
+}
 
-function setSports(data) {
-    console.log(data)
-    console.log('Hello')
-    let svg = d3.select("#graph3")
-    .append("svg")
-    .attr("width", graph_3_width)     
-    .attr("height", graph_3_height) 
-    .append("g")
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    var data = getTop('Sports', data)
-    //data = [{name: 'Abc', value: 40}, {name: 'Bcd', value:50}, {name:'Yo', value:15},{name:'Bd', value:100}]; 
+function getChart(selectedGenre, data) {
+    console.log(selectedGenre)
+    var filteredData = data.filter(d => d.Genre == selectedGenre);
+    var finaldata = getTop(filteredData, NUM_PUBLISHERS)
+    console.log(finaldata)
+
+
+    pie.value(d => d.totalSales);
+
+    svg2
+    .selectAll('.arc')
+    .data(pie(finaldata))
+    .enter()
+    .append('path')
+    .attr('d', path)
+    .attr("fill", function(d) { return color(d.data.totalSales)});
     
-    let countRef = svg.append("g");
-    const radius = 100;
-    let color = d3.scaleOrdinal(['red','blue','green','gray']);
-    const pie = d3.pie().value(d => d.totalSales);
+ 
+
+    let allLines = svg2.selectAll('polylines')
+
+    svg2.selectAll('polyline').remove()
+    
+    allLines
+    .data(pie(finaldata))
+    .enter()
+    .merge(allLines)
+    .append('polyline')
+        .attr("stroke", "black")
+        .style("fill", "none")
+        .attr("stroke-width", 1)
+        .attr('points', function(d) {
+        var position = outerCircle.centroid(d);
+        position[0] = radius * 0.9 * (midAngle(d) < Math.PI ? 1 : -1);
+        return [path.centroid(d), outerCircle.centroid(d), position]
+        })
+    .transition()
+    .duration(1000)
 
     
-    const path = d3.arc().outerRadius(radius).innerRadius(0);
+    
+    let allLabels = svg2.selectAll('labels')
+    svg2.selectAll('text').remove()
 
-    const pies = svg.selectAll('.arc').data(pie(data)).enter().append('g').attr('class','arc');
+    allLabels
+    .data(pie(finaldata))
+    .enter()
+    .merge(allLabels)
+    .append('text')
+        .html(d => `${d.data.Publisher} , ${d.data.percentile}`)
+        .attr('transform', function(d) {
+            var position = outerCircle.centroid(d);
+            position[0] = radius * 0.99 * (midAngle(d) < Math.PI ? 1 : -1);
+            return 'translate('+position+')';
+        })
+        .style('text-anchor', function(d) {
+            console.log(midAngle(d))
+            return (midAngle(d) < Math.PI ? 'start' : 'end')
+        })
+        
+}
 
-    pies.append('path').attr('d', path).attr("fill", function(d) { return color(d.value)})
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);
-    }
 
+function midAngle(d) {
+    return d.startAngle + (d.endAngle - d.startAngle) / 2;
+}
 
-function getTop(genreValue, data)
+function getTop(data, numPUB)
 {
-    console.log("Reached")
-    console.log(genreValue)
-    var dataFilter = data.filter(d => d.Genre == genreValue);
+  
+    var dataFilter = data
     let publisher = new Set()
     let res = []
     let sum = 0
     let index = 0
-    console.log(dataFilter)
+
     dataFilter.forEach(function(element){
         if (!publisher.has(element.Publisher)) {  
             //console.log(element.Genre)
             publisher.add(element.Publisher)
-            res[index] = {"Publisher": element.Publisher, "totalSales": 0.0}
+            res[index] = {"Publisher": element.Publisher, "totalSales": 0.0, "percentile": 0.0}
             res[index].totalSales =  res[index].totalSales + parseFloat(element.NA_Sales) + parseFloat(element.EU_Sales)
              +  parseFloat(element.JP_Sales) + parseFloat(element.Other_Sales) + parseFloat(element.Global_Sales)
             //console.log(res[index].totalSales)
@@ -85,19 +142,41 @@ function getTop(genreValue, data)
 
         }
         else {
-            console.log(element.Publisher)
+            
             var index1 = res.findIndex(p => p.Publisher == element.Publisher)
-            console.log(index1)
+
             res[index1].totalSales =  res[index1].totalSales + parseFloat(element.NA_Sales) + parseFloat(element.EU_Sales)
             +  parseFloat(element.JP_Sales) + parseFloat(element.Other_Sales) + parseFloat(element.Global_Sales)
 
         }
     })
 
-    console.log(res)
+    res.sort(function(x,y) {
+        return parseInt(y.totalSales) - parseInt(x.totalSales)
+    })
 
-    return res
-    //var dataFilter = data.map(function(d){return {time: d.NA_Sales, genreValue:d[genreValue]} })
+    let result = res.slice(0, numPUB)
+
+    var allEleSales = []
+    result.forEach(function(element){
+        allEleSales.push(element.totalSales)
+    })
+
+    console.log(allEleSales)
+
+    result.forEach(function(element){
+        element.percentile = getPercentile(allEleSales,element.totalSales).toFixed(2)
+    })
 
 
+
+    return result
+}
+
+
+function getPercentile(res, value) {
+    var initialValue =  res.reduce((accumulator, currentValue) => accumulator + (currentValue < value ? 1 : 0) + (currentValue === value ? 0.5 : 0), 0)
+    var finalValue = (initialValue*100)/res.length
+    console.log(finalValue)
+    return finalValue
 }

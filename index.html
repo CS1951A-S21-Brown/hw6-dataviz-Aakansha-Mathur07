@@ -7,39 +7,149 @@
         <link rel="stylesheet" href="main.css"/>
         <!--Feel free to add more CSS files as needed-->
         <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
-    </head>
+        <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.min.js"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+ 
+</head>
 <body>
     <div class="header">
-        <h3>Assignment 6 &laquo; Data Visualization Dashboard &raquo;</h3>
+        <h3 style="font-weight: bold;">Assignment 6 &laquo; Data Visualization Dashboard &raquo;</h3>
+        <br>
     </div>
     <!--  We included a basic HTML structure for the 3 graphs here. Feel free to change this if you'd like  -->
-    <div class="row">
-        <div class="col-lg-6">
+    <h3 style="font-weight: bold; text-align: center;">  &laquo; Top 10 Games of All time or Specified Year  &raquo;</h3>
+    <br>
+    <div class="graph1">
+        <div style="margin:0 auto; width: 600px; display: flex; flex-direction:row; justify-content:space-evenly">
             <div>
-                <select id="select-button"></select>
-                <div id="graph1"> </div>
+                <button id="allTime" type="button" style="font-weight: bold; width:100px; height: 50px;">All time</button>
             </div>
-
-            <div id="graph2">
-                <button type="button" class="btn btn-info" onclick="setData(0, 'NA_Sales')">North America</button>
-                <button type="button" class="btn btn-info" onclick="setData(0, 'EU_Sales')">Europe</button>
-                <button type="button" class="btn btn-info" onclick="setData(0, 'JP_Sales')">Japan</button>
-                <button type="button" class="btn btn-info" onclick="setData(0, 'Other_Sales')">Other</button>
-                <button type="button" class="btn btn-info" onclick="setData(0, 'Global_Sales')">Global</button>
-            </div><br/>
-        </div>
-        <div class="col-lg-6">
-            <select id="selectButton"></select>
-
-            <div id="graph3">
-                
-            </div>
+            <span style="margin-top: 20px; font-weight: bold;"> or </span>
+            <div>
+            <p style="font-weight: bold;">Select a Year:</p> 
+            <input style="width:250px" id="inputYear" type="range" min="1980" max="2020" value="1980">
+            <br>
+            <p id="printYear"> </p>
+            </div>   
         </div>
     </div>
+    <br>
+    <div style="width:900px; display:flex; margin: 0 auto;">
+        <div  id="barplot1"> </div>
+    </div>
+    <br>
+    <h3 style="font-weight: bold; text-align: center;">  &laquo; Top Genre in Each Region  &raquo;</h3>  
+    <br>
+    <h4 style="margin-left: 415px; margin-right: 500px; font-weight: bold; text-align: left;"> There are four regions: North America, Japan, Europe and Others. The top genre is determined by the number of sales
+    in the region</h4>    
+    <div style="width:1050px; display:flex; margin: 0 auto;" id="graph2">        
+              
+        <svg> </svg>
+    </div>
+    <br>
+    <h3 style="font-weight: bold; text-align: center;">  &laquo; Top Publisher in Each Genre  &raquo;</h3>  
+    <br>
+    <h4 style="margin-left: 350px; margin-right: 500px; font-weight: bold; text-align: left;"> The top publisher is determined by the total sales (in millions) for each genre. 
+    The label is displayed in the format <span style="color: blue; font-weight: bolder;"> Publisher Name, Percentile. </span> The percentile value changes as more publishers are displayed </h4>  
+    <br>
+    <div>
+        
+    </div>
+    <div style="width:1000px; display:flex; flex-direction:column; margin: 0 auto;">
+        <div style="display: flex; height: 80px;flex-direction: column; justify-content: center;">
+        <select style="height:50px" id="selectButton"></select>
+        <br>
+        <div>
+            <span> Number of Publishers to be displayed: </span>
+            <input id="userPub" type="text" style="width:150px; height: 50px;" > <button style="height:50px" onclick="setPub()"id="numPub"> Get Chart</button>
+        </div>
+        </div>
+        <br>
+        <div style="width:1200px;" id="graph3"></div>  
+        
+    </div>
+    <h3 style="font-weight: bold; text-align: center;">  &laquo; Written Questions  &raquo;</h3>  
+    <h4 style="font-weight: bold; text-align: center;">
+        Describe how your dashboard answers the questions presented. You don't have to address every question directly, but should at a high level address the main questions.
+    </h4>
+    <h4 style="margin-left: 115px; margin-right: 150px; text-align: left;"> 
+        The first question asks to display the top 10 games of all time or a specified year. The result is shown using a bar plot. The bar plot is fit for this question as it displays total sales
+        for each game eloquently. Moreover, we can compare two or more games using the current bar plot. Irrespective of the fact that the data is sorted or not, a bar plot can clearly indicate
+        the top 10 games. But since, we are expected to display only top 10, the data is sorted and sliced. Additionally, we can also rank the games based on the total sales using a bar plot.
+
+    
+    </h4>
+    <h4 style="margin-left: 115px; margin-right: 150px; text-align: left;"> 
+        The second question asks to display the most popular genre per region. The result is shown using a map. The map is fit for this question as we can distinctly identify the top genre 
+        for each region based on the total sales. A barplot could also have been used here but having different barplots for different regions requires understanding each and every barplot.
+        This is not feasible as the top genre for each barplot would have to be remembered. Instead using a map and a legend, we can effectively summarise all the information that the different
+        barplots were trying to achieve. The map displays the top genre in each region and the legend can be used to identify which genre it is. The map can also be extended to a dataset where
+        video games sales for each country is given. 
+    </h4>
+    <h4 style="margin-left: 115px; margin-right: 150px; text-align: left;"> 
+        The third question asks to display the top publisher for each genre game. The result is shown using a donut chart. The donut chart is fit for this question. Using the total sales for each publisher
+        , we make a donut chart for each genre. The donut chart clearly indicates which publisher made the highest sales for which genre. The donut chart also indicates which publisher made the lowest
+        sales for each genre. This can be used to rank the publishers based on their sales and pick which publisher the boss wants to work with. 
+    </h4>
+    <br> 
+    <h4 style="font-weight: bold; margin-left: 115px; margin-right: 150px; text-align: left;">
+        List 3 reasons why D3 was helpful and improved your visualization (6 points)
+    </h4>
+    <h4 style="margin-left: 115px; margin-right: 150px; text-align: left;">
+       1. D3 is helpful in summarizing data. The video games data consists of multiple sales for each game. It can be difficult to identify which game had the highest sale just by looking at 
+       the data. Additionally, it can also be difficult to compare the performance of a game with respect to other games. Both the problems are resolved by using D3, which can help a user 
+       draw multiple inferences from the graph.
+       <br> <br>
+       2. D3 offers better interactivity. With D3, the user can easily set parameters according to his convenience and the graph displays the result accordingly. This helps the user to understand the
+       data well and draw his or her observations from it. Rather than just reading a documentation on the effects of parameters on data, the user can see the effect taking place. 
+       <br> <br>
+       3. D3 makes it easier to visualize answers for specific questions. For instance, D3 can be used to easily identify which publisher performed the best for each genre without writing any additional script.
+       It also makes it easier to visualize regions or areas where the data behaved differently. 
+    </h4>
+    <br>
+    <h4 style="font-weight: bold; margin-left: 115px; margin-right: 150px; text-align: left;">
+        List 3 reasons why D3 would not be the best tool for creating a visualization (6 points)
+    </h4>
+    <h4 style="margin-left: 115px; margin-right: 150px; text-align: left;">
+        1. D3 would not be the best tool for summarizing textual data. D3 works well if there is numerical data that can be used to plot the graph. But in the case of textual data
+        it may not be able to plot a graph that can summarize the data. Hence, some preprocessing may have to be done to extract numerical data from textual data and then D3 can be
+        deployed. 
+        <br> <br>
+        2. D3 would not be the best tool when trying to compare a lot of data. For instance, when trying to find which top publisher for each genre, plotting sales for all publishers can make the data difficult
+        to interpret and find the result. Hence, some kind of filtering interactivity has to be added to understand the data better. 
+        <br> <br>
+        3. D3 would not be the best tool when there are multiple parameters. For instance, if the dataset is huge and there are multiple parameters then plotting all parameters on a single graph
+        would not lead to best visualization for the data. Infact the graph would be confusing. So, a filtering interactivity would have to be added to understand the data. But, if there are multiple
+        parameters and if the user have to select multiple times for each iteration then the interactivity is tedious. Moreover, creating visualization for each and every parameter may be overwhelming
+        and a lot of information to remember
+     </h4>
+    
+    <h3 style="font-weight: bold; text-align: center;">  &laquo; Accessible Data Visualization &raquo;</h3>  
+    <h4 style="font-weight: bold; margin-left: 115px; margin-right: 150px; text-align: left;">
+        What kinds of users might find this dashboard accessible and who might have more difficulty? 
+        What additional actions might you take to make this dashboard more accessible to all audiences? 
+        Your response should refer to at least one of the readings and be about 1 paragraph.
+    </h4>
+    <h4 style="margin-left: 115px; margin-right: 150px; text-align: left;">
+        Visually impaired users who are red-green color blind and other color blindness may find this dashboard accessible. Users with blue-yellow complete blindness may have difficulty with the dashboard since the first question uses
+        a range bar. Since the range bar is not readable by the screen reader then I would change the range bar to either a dropdown list or another interactivity that can be read by the 
+        screen reader. Also, add skiplinks that would allow users to navigate to the graphs directly. Add keyboard navigation so that the dashboard can be navigated with only a keyboard. 
+    </h4>
+    <br>
+    <h4 style="font-weight: bold; margin-left: 115px; margin-right: 150px; text-align: left;">
+        Reflect on the stages of your design and implementation process when you could have taken steps to make your dashboard more accessible to all audiences. 
+        What are some factors that kept you from taking these steps? (a few sentences)
+    </h4>
+    <h4 style="margin-left: 115px; margin-right: 150px; text-align: left;">
+        I was in a fix of using a dropdown list or range bar for the first question. While I have read that a dropdown list is more accessible, a dropdown list would not be feasible
+        for selecting years between 1980 to 2020. As there would be a lot of scrolling and the user interactivity would be tedious. Hence, I had switched to a range bar. 
+    </h4>
+    
     <!--Feel free to add more JavaScript files as needed-->
-    <script type="text/javascript"> const NUM_EXAMPLES = 10; </script>
     <script type="text/javascript" src="main.js"></script>
-    <script type="text/javascript" src="graph3.js"></script>
     <script type="text/javascript" src="graph1.js"></script>
+    <script type="text/javascript" src="graph3.js"></script>
+
 </body>
 </html>

@@ -9,4 +9,9 @@
     text-align: center;
 }
 
+.body {
+  display: flex;
+  flex-direction: column;
+}
 /* Include any custom CSS styling here! */
+
